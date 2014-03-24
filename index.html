@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html><head>
+    <title>NullMQ Bridge</title>
+    <link rel="stylesheet" href="/dist/lib/qunit.css" media="screen" />
+    <style type="text/css">
+      #debug { background-color: #F0F0F0; font-size: 12px; height: 75%; overflow: auto; padding: 10px; z-index: 100; }
+    </style>
+    <script type="text/javascript" src='nullmq/dist/lib/jquery.min.js'></script>
+    <script type="text/javascript" src="nullmq/dist/lib/stomp.js"></script>
+    <script type="text/javascript" src="nullmq/dist/nullmq.js"></script>
+    <script type="text/javascript" src="pentameter.js"></script>
+        
+    <script type="text/javascript">
+      $(document).ready(function(){
+      
+        TEST = {
+          login : "guest",
+          password : "guest",
+          url : "ws://localhost:9000",
+          timeout: 2000,
+          debug : function(str) {
+            $("#debug").append(str + "\n");
+          }
+      
+        };
+      
+        // fill server requirements:
+        $("#test_url").text(TEST.url);
+        $("#test_login").text(TEST.login);
+        $("#test_password").text(TEST.password);
+
+	var message = {
+		//"author": "localhost:88889",
+		"recipient": "localhost:99998",
+		"parameter": [
+			{
+				"a": 42
+			}
+		],
+		"type": "put",
+		"space": "test.nullmq"
+	};
+	//alert(JSON.stringify(message));
+	var ctx = new nullmq.Context(TEST.url);
+	var req = ctx.socket(nullmq.REQ);
+    req.connect('tcp://localhost:88888');
+	pentameter.init(req, function(type, author, space, parameter) {
+		//alert(type, author, space, parameter);
+		if (space == "report") {
+			$("#bodies").text("");
+			$.each(parameter[0].bodies, function(key, value) {
+				$("#bodies").append("<li>" + key + "</li>");
+			});
+			return;
+		};
+		$("#msgtype").text(type);
+		$("#msgauthor").text(author);
+		$("#msgspace").text(space);
+		$("#msgparameter").text(JSON.stringify(parameter));
+	});
+    //req.send("json\n\n"+ JSON.stringify(message));
+    //req.send(JSON.stringify(message));
+    //req.send("FOOBAR");
+	//var ctx2 = new nullmq.Context("ws://localhost:9001/bridge");
+	//var rep = ctx.socket(nullmq.REP);
+	//rep.bind('tcp://localhost:88889');
+	//rep.recvall(function(message) { alert(message); $("#test_url").text("WORKING"); });
+	//req.recv(function (message) { alert(message); }, 0)
+	//ctx.term();
+	pentameter.talk("get", "localhost:55555", "report", [{}]);
+	//window.setTimeout(function() {
+		pentameter.talk("put", "localhost:99998", "test.nullmq", [{"a": 43}]);
+	//}, 500);
+    });    
+    </script>
+</head><body>
+  <section>
+    <h1 id="qunit-header">NullMQ Bridge</h1>
+    <section>
+      <p>Tests requires that a Bridge Server accepting Stomp WebSocket protocol is running with the configuration:</p>
+      <ul>
+        <li>URL: <span id="test_url"></span>
+        <li>User: <span id="test_login"></span> /  <span id="test_password"></span>
+      </ul>
+    </section>
+    
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    
+    <pre id="debug"></pre>
+  </section>
+  <section>
+  	<p>last response</p>
+  	<dl>
+  		<dt>type</dt>
+  		<dd id="msgtype">&nbsp;</dd>
+  		<dt>author</dt>
+  		<dd id="msgauthor">&nbsp;</dd>
+  		<dt>space</dt>
+  		<dd id="msgspace">&nbsp;</dd>
+  		<dt>parameter</dt>
+  		<dd id="msgparameter">&nbsp;</dd>
+  	</dl>
+  	<p>HADES at localhost:55555</p>
+  	<ul id="bodies">
+  	</ul>
+  </section>
+</body></html>

@@ -1,0 +1,6 @@
+[submodule "nullmq"]
+	path = nullmq
+	url = https://github.com/progrium/nullmq
+[submodule "hexameter"]
+	path = hexameter
+	url = https://github.com/thomasgabor/hexameter
