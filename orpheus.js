@@ -31,14 +31,39 @@ $(document).ready(function() {
 		$("#msgspace").text(space);
 		$("#msgparameter").text(JSON.stringify(parameter));
 	});
-	$("#lastresponse").click(function() {
+	$("#newmessage").click(function(e) {
+	    if(!($(e.target).is('section') || $(e.target).is('p'))) {
+            e.preventDefault();
+            return;
+        };
+		$("#newmessage").toggleClass("active");
+		e.stopPropagation();
+	});
+	$("#lastresponse").click(function(e) {
+		if(!($(e.target).is('section') || $(e.target).is('p'))) {
+            e.preventDefault();
+            return;
+        };
 		$("#lastresponse").toggleClass("active");
+		e.stopPropagation();
 	});
 	$("#hadesconnect").click(function() {
+		$("#hadesmissing").text("");
 		$(".hadesaddress").text($("#hades").val());
+		if ($(".hadesaddressfield").val() == "") {
+			$(".hadesaddressfield").val($("#hades").val());
+		};
 		pentameter.talk("get", $("#hades").val(), "state", [{}]);
 	});
 	$("#hadesrun").click(function() {
 		pentameter.talk("put", $("#hades").val(), "construction", [{steps: 1}]);
+	});
+	$("#sendnewmessage").click(function() {
+		var msgtype = $("#newtype select").val();
+		var msgrecipient = $("#newrecipient input").val();
+		var msgspace = $("#newspace input").val();
+		var msgparameter = $("#newparameter textarea").val();
+		pentameter.talk(msgtype, msgrecipient, msgspace, JSON.parse(msgparameter));
+		$("#lastresponse").toggleClass("active", true);
 	});
 }); 

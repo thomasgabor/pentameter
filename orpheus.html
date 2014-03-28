@@ -25,6 +25,27 @@
 	<section>
 		<h1>Orpheus: A User Interface for HADES</h1>
 	</section>
+	<section id="newmessage">
+		<p>new message <input type="button" id="sendnewmessage" value="send" /></p>
+		<form>
+			<dl>
+				<dt>type</dt>
+				<dd id="newtype">
+					<select>
+						<option value="qry">qry</option>
+						<option value="get">get</option>
+						<option value="put">put</option>
+					</select>
+				</dd>
+				<dt>recipient</dt>
+				<dd id="newrecipient"><input type="text" class="hadesaddressfield" /></dd>
+				<dt>space</dt>
+				<dd id="newspace"><input type="text" value="net.life" /></dd>
+				<dt>parameter</dt>
+				<dd id="newparameter"><textarea>[{}]</textarea></dd>
+			</dl>
+		</form>
+	</section>
 	<section id="lastresponse">
 		<p>last response</p>
 		<dl>

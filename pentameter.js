@@ -1,20 +1,34 @@
 (function() {
-	var timeslice = 100;
+	var socket, behave, options;
+
 	var listening = false;
+	var currenttries = 0;
 	function wait(thendo) {
 		if (listening) {
-			window.setTimeout(wait, timeslice, thendo);
+			if ( currenttries > options.timeout ) {
+				currenttries = 0;
+				options.ontimeout();
+			} else {
+				currenttries = currenttries + 1;
+				window.setTimeout(wait, options.timeslice, thendo);
+			};
 		} else {
+			currenttries = 0;
 			thendo();
 		};
 	};
 
-	var socket, behave;
 	var lastresponse;
 	pentameter = {};
-	pentameter.init = function(_socket, _time) {
-		socket = _socket
-		behave = _time
+	pentameter.init = function(_socket, _time, _options) {
+		socket = _socket;
+		behave = _time;
+		options           = typeof options           === 'object'    ? options           : {};
+		options.timeslice = typeof options.timeslice === 'number'    ? options.timeslice : 100;
+		options.timeout   = typeof options.timeout   === 'number'    ? options.timeout   : 20;
+		options.ontimeout = typeof options.ontimeout === 'function'  ? options.ontimeout : function() {
+			alert("Pentameter connection timed out! Check your setup!")
+		};
 		socket.recvall(function(response) {
 			var message = JSON.parse(response);
 			if ((!message.type) || (!message.author) || (!message.space)) {

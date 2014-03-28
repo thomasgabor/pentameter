@@ -76,7 +76,7 @@ h1
 	margin-right: auto;
 }
 
-#lastresponse
+#lastresponse, #newmessage
 {
 	display: block;
 	overflow: hidden;
@@ -91,32 +91,33 @@ h1
 	border-radius: 10px;
 	border: 1px solid #888888;
 	
+	transition: background-color 0.5s, border-color 0.5s;
 }
 
-#lastresponse:hover
+#lastresponse:hover, #newmessage:hover
 {
 	background-color: #AAAAAA;
 	border-color: #000000;
 }
 
-#lastresponse.active
+#lastresponse.active, #newmessage.active
 {
 	height: auto;
 }
 
-#lastresponse > *
+#lastresponse > *, #newmessage > *
 {
 	margin-left: 20px;
 	margin-right: 20px;
 }
 
-#lastresponse > :first-child
+#lastresponse > :first-child, #newmessage > :first-child
 {
 	margin-top: 0.4em;
 	margin-bottom: 1em;
 }
 
-#lastresponse dl
+#lastresponse dl, #newmessage dl
 {
 	background-color: #EEEEEE;
 	border-radius: 10px;
@@ -125,7 +126,7 @@ h1
 	padding-bottom: 20px;
 }
 
-#lastresponse dl dt
+#lastresponse dl dt, #newmessage dl dt
 {
 	margin-left: 10px;
 	width: 150px;
@@ -137,12 +138,12 @@ h1
 	border-top: 1px #888888 dashed;
 }
 
-#lastresponse dl dt:nth-of-type(1)
+#lastresponse dl dt:nth-of-type(1), #newmessage dl dt:nth-of-type(1)
 {
 	border-top: none;
 }
 
-#lastresponse dl dd
+#lastresponse dl dd, #newmessage dl dd
 {
 	margin-top: -31px;
 	margin-left: 160px; 
@@ -153,7 +154,7 @@ h1
 	border-top: 1px #888888 dashed;
 }
 
-#lastresponse dl dd:nth-of-type(1)
+#lastresponse dl dd:nth-of-type(1), #newmessage dl dd:nth-of-type(1)
 {
 	border-top: none;
 }
