@@ -55,8 +55,18 @@ $(document).ready(function() {
 		};
 		pentameter.talk("get", $("#hades").val(), "state", [{}]);
 	});
+	var firstrun = true;
 	$("#hadesrun").click(function() {
-		pentameter.talk("put", $("#hades").val(), "construction", [{steps: 1}]);
+		if (firstrun) {
+			pentameter.talk("put", $("#hades").val(), "construction", [{steps: 1}]);
+			$("#hadesrun").val("run another simulation");
+			firstrun = false;
+		} else {
+			pentameter.talk("put", $("#hades").val(), "untermination", [{}]);
+		};
+	});
+	$("#hadesexit").click(function() {
+		pentameter.talk("put", $("#hades").val(), "termination", [{}]);
 	});
 	$("#sendnewmessage").click(function() {
 		var msgtype = $("#newtype select").val();
