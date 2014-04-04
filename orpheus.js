@@ -2,6 +2,7 @@ $(document).ready(function() {
 	var ctx = new nullmq.Context("ws://localhost:9000"); //username "guest", password "guest" are ASSUMED by nullmq (!)
 	var req = ctx.socket(nullmq.REQ);
 	req.connect('tcp://localhost:88888');
+	var runcount = 0;
 	pentameter.init(req, function(type, author, space, parameter) {
 		if (space == "report") {
 			$("#bodies").text("");
@@ -21,11 +22,14 @@ $(document).ready(function() {
 		};
 		if (space == "construction") {
 			if ( parameter[0].missing == 0 ) {
-				$("#hadesmissing").text("HADES is running the simulation now, Orpheus is finished.");
+				$("#hadesmissing").text("Experiment #" + runcount + " started.");
 			} else {
 				$("#hadesmissing").text("" + parameter[0].missing + " step(s) missing...");
 			};
 		}
+		if (space == "untermination") {
+			$("#hadesmissing").text("Experiment #" + runcount + " started.");
+		};
 		$("#msgtype").text(type);
 		$("#msgauthor").text(author);
 		$("#msgspace").text(space);
@@ -57,6 +61,7 @@ $(document).ready(function() {
 	});
 	var firstrun = true;
 	$("#hadesrun").click(function() {
+		runcount++;
 		if (firstrun) {
 			pentameter.talk("put", $("#hades").val(), "construction", [{steps: 1}]);
 			$("#hadesrun").val("run another simulation");
@@ -67,6 +72,7 @@ $(document).ready(function() {
 	});
 	$("#hadesexit").click(function() {
 		pentameter.talk("put", $("#hades").val(), "termination", [{}]);
+		$("#hadesmissing").html("HADES terminated. <a href=\"javascript:window.location.reload(true);\">Reload Orpheus.</a>");
 	});
 	$("#sendnewmessage").click(function() {
 		var msgtype = $("#newtype select").val();
