@@ -1,3 +1,18 @@
+var active = true;
+
+function checkInbox() {
+	//pentameter.talk("get", $("#hades").val(), "net.life", [{a:42}]);
+	pentameter.talk("get", "dummy", "pentameter.pending", [{bother:$("#hades").val()}]);
+	if ( active ) {
+		setTimeout(checkInbox, 1000);
+	};
+}
+
+function checkState() {
+	pentameter.talk("get", $("#hades").val(), "state", [{}]);
+	setTimeout(checkState, 1000);
+}
+
 $(document).ready(function() {
 	var ctx = new nullmq.Context("ws://localhost:9000"); //username "guest", password "guest" are ASSUMED by nullmq (!)
 	var req = ctx.socket(nullmq.REQ);
@@ -30,6 +45,16 @@ $(document).ready(function() {
 		if (space == "untermination") {
 			$("#hadesmissing").text("Experiment #" + runcount + " started.");
 		};
+		if (space == "pentameter.pending") {
+			//$("#test").text($("#test").text() + JSON.stringify(parameter));
+			$.each(parameter, function(i, item) {
+				$.each(item.messages, function(a, answer) {
+					if ( answer && answer.space == "hades.subscription.state") {
+						$(".currenttime").text(answer.parameter[0].period)
+					};
+				});
+			});
+		};
 		$("#msgtype").text(type);
 		$("#msgauthor").text(author);
 		$("#msgspace").text(space);
@@ -58,6 +83,8 @@ $(document).ready(function() {
 			$(".hadesaddressfield").val($("#hades").val());
 		};
 		pentameter.talk("get", $("#hades").val(), "state", [{}]);
+		pentameter.talk("put", $("#hades").val(), "subscriptions", [{to: "state", space: "hades.subscription.state"}]);
+		checkInbox();
 	});
 	var firstrun = true;
 	$("#hadesrun").click(function() {
@@ -71,6 +98,7 @@ $(document).ready(function() {
 		};
 	});
 	$("#hadesexit").click(function() {
+		active = false;
 		pentameter.talk("put", $("#hades").val(), "termination", [{}]);
 		$("#hadesmissing").html("HADES terminated. <a href=\"javascript:window.location.reload(true);\">Reload Orpheus.</a>");
 	});

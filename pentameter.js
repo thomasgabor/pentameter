@@ -20,7 +20,7 @@
 
 	var lastresponse;
 	pentameter = {};
-	pentameter.init = function(_socket, _time, _options) {
+	pentameter.init = function(_socket, _time, _spheres, _codename, _options) {
 		socket = _socket;
 		behave = _time;
 		options           = typeof options           === 'object'    ? options           : {};
@@ -58,6 +58,10 @@
 			listening = true;
 			pentameter.tell(type, recipient, space, parameter);
 		});
+	};
+	pentameter.fetch = function(parameter) {
+		parameter = parameter || [{}];
+		pentameter.talk("get", "dummy", "pentameter.pending", parameter);
 	};
 	
 }).call(this)
