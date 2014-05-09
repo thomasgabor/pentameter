@@ -1,5 +1,41 @@
 (function() {
-	var socket, behave, options;
+	var defaultspheres = ["networking"];
+	var defaultcode = "json";
+
+	var socket, behave, code, options;
+	var spheres = {};
+	spheres.id = function (continuation, direction) {
+		return function (type, author, space, parameter) {
+			return behave(type, author, space, parameter);
+		};
+	};
+	spheres.networking = function (continuation, direction) {
+		if ( direction == "in" ) {
+			return function (type, author, space, parameter) {
+				if (space == "pentameter.pending") {
+					var response = [];
+					//$("#test").text($("#test").text() + JSON.stringify(parameter));
+					$.each(parameter, function(i, item) {
+						$.each(item.messages, function(a, answer) {
+							response[a] = behave(answer.type, answer.author, answer.space, answer.parameter);
+						});
+					});
+					return [{messages: response}];
+				};
+				if (space == "pentameter.returning") {
+					return null;
+				};
+				return continuation(type, author, space, parameter);
+			};
+		} else {
+			return null;
+		};
+	};
+	var codes = {};
+	codes.json = {
+		encode: JSON.stringify,
+		decode: JSON.parse
+	};
 
 	var listening = false;
 	var currenttries = 0;
@@ -23,6 +59,27 @@
 	pentameter.init = function(_socket, _time, _spheres, _codename, _options) {
 		socket = _socket;
 		behave = _time;
+		_spheres = typeof _spheres == "undefined" ? defaultspheres : _spheres;
+		if ( typeof _spheres == "object" ) {
+			for( var i = 0; i < _spheres.length; i++ ) {
+				var sphere = null;
+				if ( typeof _spheres[i] == "string" ) {
+					sphere = spheres[_spheres[i]];
+				};
+				if ( typeof _spheres[i] == "function" ) {
+					sphere = _spheres[i];
+				};
+				var instance = sphere(behave, "in");
+				behave = instance ? instance : behave;
+			};
+		};
+		code = codes[defaultcode];
+		if ( typeof _codename == "string" && codes[_codename] ) {
+			code = codes[_defaultcode];
+		};
+		if ( typeof _codename == "object" && typeof _codename.encode == "function" && typeof _codename.decode == "function" ) {
+			code = _codename;
+		};
 		options           = typeof options           === 'object'    ? options           : {};
 		options.timeslice = typeof options.timeslice === 'number'    ? options.timeslice : 100;
 		options.timeout   = typeof options.timeout   === 'number'    ? options.timeout   : 20;
@@ -30,12 +87,16 @@
 			alert("Pentameter connection timed out! Check your setup!")
 		};
 		socket.recvall(function(response) {
-			var message = JSON.parse(response);
+			var message = code.decode(response);
 			if ((!message.type) || (!message.author) || (!message.space)) {
 				console.log("received malformed message")
 			} else {
 				listening = false;
-				lastresponse = behave(message.type, message.author, message.space, message.parameter)
+				lastresponse = behave(message.type, message.author, message.space, message.parameter);
+				if ( typeof lastresponse == "object" && lastresponse != null ) {
+					//$("#test").text($("#test").text() + JSON.stringify(lastresponse) + " ");
+					pentameter.talk("put", "dummy", "pentameter.returning", lastresponse);
+				};
 			};
 		});
 	};
@@ -48,7 +109,7 @@
 			"space": space,
 			"parameter": parameter
 		};
-		return socket.send(JSON.stringify(message));
+		return socket.send(code.encode(message));
 	};
 	pentameter.process = behave;
 	

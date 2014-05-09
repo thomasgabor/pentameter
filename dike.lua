@@ -31,11 +31,11 @@ local function time()
     	if string.match(space, "^pentameter") then
     		local response = {}
     		for i,item in pairs(parameter) do
-    			if answered[item["&askfor"]] then
-	    			table.insert(response, answered[item["&askfor"]])
-					if msgtype == "get" then
-						answered[item["&askfor"]] = nil
-					end
+    			for a,answer in pairs(answered[item["&askfor"]] or {}) do
+	    			table.insert(response, answer)
+				end
+				if msgtype == "get" then
+					answered[item["&askfor"]] = nil
 				end
     		end
     		return response
@@ -44,6 +44,7 @@ local function time()
 	    	currentindex = currentindex + 1
     		received[currentindex] = {key=currentindex, type=msgtype, author=author, space=space, parameter=parameter}
     		return {{["&askfor"] = currentindex}}
+    		--TODO: consider means to wait with sending the ACK until we actually have an answer from the frontend, i.e. Orpheus
     	end
 	end
 end
@@ -79,10 +80,25 @@ while true do
 			}
 			multisend(socket, src, del, json.encode(response))
 		elseif message.space == "pentameter.returning" and message.type == "put" then
-			local response = {}
+			--print("**  attempting to save return values " .. json.encode(message.parameter))
+			local answers = {}
 			for i,item in pairs(message.parameter or {}) do
-				table.insert(response, answered[item.key])
+				for a,answer in pairs(item.messages or {}) do
+					print("**  answered message #"..a)
+					answered[a] = answer
+				end
+				if item.key then
+					print("**  answered message #"..item.key)
+					answered[item.key] = item.value;
+				end
+				table.insert(answers, item)
 			end
+			local response = {
+				type = "ack",
+				author = hexameter.me(),
+				space = "pentameter.returning",
+				parameter = answers
+			}
 			multisend(socket, src, del, json.encode(response))
 		else
 			print("**  Referring to "..message.recipient.." for "..message.type.."@"..message.space)

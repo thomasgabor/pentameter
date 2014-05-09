@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orpheus: A User Interface for HADES</title>
+    <link rel="stylesheet" href="orpheus.css" media="screen" />
+
+    <script type="text/javascript" src='nullmq/dist/lib/jquery.min.js'></script>
+    <script type="text/javascript" src="nullmq/dist/lib/stomp.js"></script>
+    <script type="text/javascript" src="nullmq/dist/nullmq.js"></script>
+    <script type="text/javascript" src="pentameter.js"></script>
+    <script type="text/javascript" src="orpheus.js"></script>
+</head>
+<body>
+	<section id="settings">
+		<form>
+			<dl id="connections">
+				<dt>HADES</dt>
+				<dd><input type="text" name="hades" id="hades" value="localhost:55555" /></dd>
+			</dl>
+			<input type="button" name="hadesconnect" id="hadesconnect" value="connect" />
+			<input type="button" name="hadesrun" id="hadesrun" value="run simulation" />
+			<input type="button" name="hadesrun" id="hadesexit" value="exit HADES" />
+			<p id="hadesmissing">&nbsp;</p>
+		</form>
+	</section>
+	<section>
+		<h1>Orpheus: A User Interface for HADES</h1>
+	</section>
+	<section id="newmessage">
+		<p>new message <input type="button" id="sendnewmessage" value="send" /></p>
+		<form>
+			<dl>
+				<dt>type</dt>
+				<dd id="newtype">
+					<select>
+						<option value="qry">qry</option>
+						<option value="get">get</option>
+						<option value="put">put</option>
+					</select>
+				</dd>
+				<dt>recipient</dt>
+				<dd id="newrecipient"><input type="text" class="hadesaddressfield" /></dd>
+				<dt>space</dt>
+				<dd id="newspace"><input type="text" value="net.life" /></dd>
+				<dt>parameter</dt>
+				<dd id="newparameter"><textarea>[{}]</textarea></dd>
+			</dl>
+		</form>
+	</section>
+	<section id="lastresponse">
+		<p>last response</p>
+		<dl>
+			<dt>type</dt>
+			<dd id="msgtype">&nbsp;</dd>
+			<dt>author</dt>
+			<dd id="msgauthor">&nbsp;</dd>
+			<dt>space</dt>
+			<dd id="msgspace">&nbsp;</dd>
+			<dt>parameter</dt>
+			<dd id="msgparameter">&nbsp;</dd>
+		</dl>
+	</section>
+	<section id="window">
+		<p>HADES at <span class="hadesaddress">localhost:55555</span> at time <span class="currenttime">0</span></p>
+		<ul id="bodies">
+		</ul>
+	</section>
+	<p id ="test">&nbsp;</p>
+</body>
+</html>
