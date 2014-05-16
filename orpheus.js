@@ -1,8 +1,13 @@
+var hadesConnected = false;
+var hadesSynchronized = false;
+var hadesTicked = false;
+
 var hadesMode = null;
 var hadesState = null;
 var hadesAdvancedState = null;
 var hadesEdition = "text";
 var hadesRuncount = 0;
+var hadesPeriod = 0;
 
 var editions = {};
 editions.text = {};
@@ -65,10 +70,14 @@ function checkInbox() {
 }
 
 function hadesUpdate() {
+	if ( hadesState != "running" ) {
+		hadesTicked = false;
+	};
 	$(".hades-mode\\!").text(hadesMode);
 	$(".hades-state\\!").text(hadesState + " " + JSON.stringify(hadesAdvancedState));
 	$(".hades-edition\\!").text(hadesEdition);
 	$(".hades-runcount\\!").text(hadesRuncount);
+	$(".hades-period\\!").text(hadesPeriod);
 	if ( hadesAdvancedState ) {
 		$.each(hadesAdvancedState, function(name, value) {
 			if ( name ) {
@@ -91,6 +100,14 @@ function hadesUpdate() {
 		return removing;
 	});
 	$("body").addClass("hades-edition=" + hadesEdition);
+	$("body").removeClass("hades-ticked=true hades-ticked=false");
+	$("body").addClass("hades-ticked=" + (hadesTicked ? "true" : "false"));
+	$("body").removeClass("hades-connected=true hades-connected=false");
+	$("body").addClass("hades-connected=" + (hadesConnected ? "true" : "false"));
+	$("body").removeClass("hades-synchronized=true hades-synchronized=false");
+	$("body").addClass("hades-synchronized=" + (hadesSynchronized ? "true" : "false"));
+	$("body").removeClass("hades-ticked=true hades-ticked=false");
+	$("body").addClass("hades-ticked=" + (hadesTicked ? "true" : "false"));
 }
 
 function orpheus(type, author, space, parameter) {
@@ -98,17 +115,17 @@ function orpheus(type, author, space, parameter) {
 		$.each(parameter, function(i, item) {
 			if ( item.mode ) {
 				hadesMode = item.mode;
-
+				hadesUpdate();
 			};
 		});
 	};
-	if ( space == "server.state" || space == "hades.subscriptions.server.state" ) {
+	if ( space == "server.state" || space == "hades.subscription.server.state" ) {
 		$.each(parameter, function(i, item) {
 			var state = item.state ? item.state.type : item.type;
 			if ( state ) {
 				hadesState = state;
 				hadesAdvancedState = item.state ? item.state : item;
-
+				hadesUpdate();
 			};
 		});
 	};
@@ -118,6 +135,12 @@ function orpheus(type, author, space, parameter) {
 				hadesRuncount = item.runcount;
 			};
 		});
+	};
+	if ( space == "hades.ticks" ) {
+		if ( hadesState == "running" ) {
+			hadesTicked = true;
+			hadesUpdate();
+		};
 	};
 	if ( space == "state" ) {
 		$.each(parameter, function(i, item) {
@@ -130,6 +153,8 @@ function orpheus(type, author, space, parameter) {
 		$.each(parameter, function(i, item) {
 			if ( editions[hadesEdition].updateState ) {
 				editions[hadesEdition].updateState(item.state);
+				hadesPeriod = item.period;
+				hadesUpdate();
 			};
 		});
 	};
@@ -160,9 +185,10 @@ function orpheus(type, author, space, parameter) {
 };
 
 $(document).ready(function() {
+
 	$(".frame, .topbar").click(function(e) {
 		if ( !$(e.target).hasClass("frame") && !$(e.target).hasClass("chrome") && $(e.target).parents(".chrome").length == 0 ) {
-            e.preventDefault();
+            //e.preventDefault();
             return;
         };
 	 	$(this).toggleClass("open");
@@ -177,7 +203,9 @@ $(document).ready(function() {
 	$("#dike").change(function() {
 		$(".dike\\!").text($(this).val());
 	}).change();
+	$("#hades-connect").attr("disabled", "");
 	$("#hades-connect").click(function() {
+		$("#hades-connect").attr("disabled", "disabled");
 		$("#hades").attr("disabled", "disabled");
 		$("#eury").attr("disabled", "disabled");
 		$("#dike").attr("disabled", "disabled");
@@ -194,10 +222,35 @@ $(document).ready(function() {
 		pentameter.talk("get", $("#hades").val(), "server.runcount", [{}]);
 		pentameter.talk("get", $("#hades").val(), "state", [{}]);
 		pentameter.talk("put", $("#hades").val(), "subscriptions", [{to: "state", space: "hades.subscription.state"}]);
+		pentameter.talk("put", $("#hades").val(), "subscriptions", [{to: "server.state", space: "hades.subscription.server.state"}]);
+		
+		if ( hadesSynchronized ) {
+			pentameter.talk("put", $("#hades").val(), "server.ticks", [{}]);
+			pentameter.talk("put", $("#hades").val(), "server.tocks", [{}]);
+		};
+		hadesConnected = true;
 		
 		pentameter.talk("get", $("#hades").val(), "remote", [{call: "edition"}]); 
 		pentameter.talk("get", $("#hades").val(), "remote", [{call: "stuff"}]); 
+		
+		hadesUpdate();
 		checkInbox();
+	});
+	$("#hades-synchronize").change(function() {
+		if ( $("#hades-synchronize").is(":checked") ) {
+			hadesSynchronized = true;
+			if ( hadesConnected ) {
+				pentameter.talk("put", $("#hades").val(), "server.ticks", [{}]);
+			};
+			hadesUpdate();
+		} else {
+			hadesSynchronized = false;
+			if ( hadesConnected ) {
+				pentameter.talk("get", $("#hades").val(), "server.ticks", [{}]);
+			};
+			hadesTicked = false;
+			hadesUpdate();
+		};
 	});
 	$("#hades-construct").click(function() {
 		pentameter.talk("put", $("#hades").val(), "construction", [{steps: 1}]);
@@ -206,12 +259,22 @@ $(document).ready(function() {
 	$("#hades-unterminate").click(function() {
 		pentameter.talk("put", $("#hades").val(), "untermination", [{}]);
 		pentameter.talk("get", $("#hades").val(), "server.runcount", [{}]);
+		pentameter.talk("get", $("#hades").val(), "server.state", [{}]);
+		if ( hadesSynchronized ) {
+			pentameter.talk("put", $("#hades").val(), "server.tocks", [{}]);
+		};
 	});
 	$("#hades-terminate").click(function() {
 		pentameter.talk("put", $("#hades").val(), "termination", [{}]);
 		hadesState = "dead";
 		hadesAdvancedState = {};
+		hadesConnected = false;
 		hadesUpdate();
+	});
+	$("#hades-tock").click(function() {
+		hadesTicked = false;
+		hadesUpdate();
+		pentameter.talk("put", $("#hades").val(), "server.tocks", [{duration: parseInt($("#hades-tock-duration").val())}]);
 	});
 	$("#hades-state-update").click(function() {
 		pentameter.talk("get", $("#hades").val(), "server.state", [{}]);

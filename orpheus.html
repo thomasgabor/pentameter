@@ -40,22 +40,30 @@
 		</dl>
 		<h2 class="chrome">HADES@<span class="hades!">&nbsp;</span></h2>
 		<input type="button" name="hades-connect" id="hades-connect" value="connect" />
+		<input type="checkbox" name="hades-synchronize" id="hades-synchronize" value="synchronize" />
+		<label for="hades-synchronize">synchronize</label>
 		<p id="hadesinfo" class="chrome">&nbsp;</p>
 	</section>
 	<section>
 		<h1>Orpheus: A User Interface for HADES</h1>
 	</section>
-	<section class="frame hades-state=constructing">
-		<p><span class="hades-state-steps!">?</span> steps missing</p>
+	<section class="panel hades-state=constructing">
+		<p><span class="hades-state-steps!">?</span> step(s) missing</p>
 		<input type="button" name="hades-construct" id="hades-construct" value="construction step finished" />
 	</section>
-	<section class="frame hades-state=concluding">
+	<section class="panel hades-state=concluding">
 		<p>HADES in server mode demands conclusion on how to proceed after <span class="hades-runcount!">&nbsp;</span> runs:</p>
 		<input type="button" name="hades-unterminate" id="hades-unterminate" value="new experiment" />
 		<input type="button" name="hades-terminate" id="hades-terminate" value="stop server" />
 	</section>
-	<section class="frame hades-state=dead">
-		<p>HADES shut down. <input type="button" name="orpheus-reload" id="orpheus-reload" value="reload Orpheus" /></p>
+	<section class="panel hades-state=dead">
+		<p>HADES shut down.</p>
+		<input type="button" name="orpheus-reload" id="orpheus-reload" value="reload Orpheus" />
+	</section>
+	<section class="panel hades-ticked=true">
+		<p>HADES is waiting for tock.</p>
+		<input type="text" name="hades-tock-duration" id="hades-tock-duration" value="1" />
+		<input type="button" name="hades-tock" id="hades-tock" value="send tock(s)" />
 	</section>
 	<section id="newmessage" class="frame">
 		<p class="chrome">new message <input type="button" id="sendnewmessage" value="send" /></p>
@@ -90,7 +98,14 @@
 		</dl>
 	</section>
 	<section id="world" class="frame">
-		<p class="chrome">HADES at <span class="hades!">&nbsp;</span> at time <span class="hades-runcount!">&nbsp;</span></p>
+		<p class="chrome">
+			HADES at
+			<span class="hades!">&nbsp;</span>
+			at time
+			<span class="hades-runcount!">&nbsp;</span>
+			:
+			<span class="hades-period!">&nbsp;</span>
+		</p>
 		<div id="worldview" class="content">
 			<dl id="bodies" class="properties hades-edition=text hades-edition=sisyphos_graph"></dl>
 			<div id="container" class="hades-edition=sisyphos_graph"></div>

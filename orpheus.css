@@ -12,7 +12,7 @@
 	height: 500px;
 }
 
-.frame
+.frame, .panel
 {
 	display: block;
 	overflow: hidden;
@@ -30,9 +30,13 @@
 	padding-left: 10px;
 	padding-right: 10px;
 
-	background-color: #CCCCCC;	
 	border: 1px solid #888888;
 	border-radius: 10px;
+}
+
+.frame
+{
+	background-color: #CCCCCC;	
 	
 	transition: background-color 0.5s, border-color 0.5s;
 }
@@ -50,8 +54,8 @@
 
 .frame.open:hover
 {
-	background-color: #CCCCCC;	
-	border-color: #888888;
+	background-color: #AAAAAA;	
+	border-color: #000000;
 }
 
 .frame .content
@@ -74,6 +78,12 @@
 .frame.open .content
 {
 	display: block;
+}
+
+.panel
+{
+	background-color: #ffa020;
+	border-color: #ff8000;
 }
 
 .topbar
@@ -181,6 +191,18 @@ body .hades-edition\=sisyphos_graph
 
 body.hades-edition\=text           .hades-edition\=text,
 body.hades-edition\=sisyphos_graph .hades-edition\=sisyphos_graph
+{
+	display: block;
+}
+
+body .hades-ticked\=true,
+body .hades-ticked\=false
+{
+	display: none;
+}
+
+body.hades-ticked\=true  .hades-ticked\=true,
+body.hades-ticked\=false .hades-ticked\=false
 {
 	display: block;
 }
