@@ -16,18 +16,24 @@
 	<section id="settings" class="frame topbar">
 		<dl class="content properties">
 			<dt>HADES mode</dt>
-			<dd class="hades-mode!">&nbsp;</dd>
+			<dd class="hades-mode!"></dd>
 			<dt>HADES state</dt>
 			<dd>
-				<span  class="hades-state!">&nbsp;</span>
-				<input type="button" name="hades-state-update" id="hades-state-update" value="update" />
+				<span  class="hades-state!"></span>
+				<input type="button" name="hades-state-update" id="hades-state-update" class="hades-connected=true" value="update" />
 			</dd>
 			<dt>world edition</dt>
-			<dd class="hades-edition!">&nbsp;</dd>
+			<dd class="hades-edition!"></dd>
 			<dt>run count</dt>
 			<dd>
-				<span  class="hades-runcount!">&nbsp;</span>
-				<input type="button" name="hades-runcount-update" id="hades-runcount-update" value="update" />
+				<span  class="hades-runcount!"></span>
+				<input type="button" name="hades-runcount-update" id="hades-runcount-update" class="hades-connected=true" value="update" />
+			</dd>
+			<dt>last waiting for</dt>
+			<dd>
+				<span class="hades-untocked-timestamp!"></span>
+				<span class="hades-untocked!"></span>
+				<input type="button" name="hades-untocked-fetch" id="hades-untocked-fetch" class="hades-connected=true" value="fetch" />
 			</dd>
 		</dl>
 		<dl id="connections" class="content properties">
@@ -37,6 +43,8 @@
 			<dd><input type="text" name="eury" id="eury" value="localhost:9000" /></dd>
 			<dt>Dike</dt>
 			<dd><input type="text" name="dike" id="dike" value="localhost:88888" /></dd>
+			<dt>Hexameter name</dt>
+			<dd><span class="dike-hexametername!">(determined by Dike)</span></dd>
 		</dl>
 		<h2 class="chrome">HADES@<span class="hades!">&nbsp;</span></h2>
 		<input type="button" name="hades-connect" id="hades-connect" value="connect" />
@@ -62,53 +70,64 @@
 	</section>
 	<section class="panel hades-ticked=true">
 		<p>HADES is waiting for tock.</p>
-		<input type="text" name="hades-tock-duration" id="hades-tock-duration" value="1" />
+		<input type="number" name="hades-tock-duration" id="hades-tock-duration" min="1" max="999" value="1" />
 		<input type="button" name="hades-tock" id="hades-tock" value="send tock(s)" />
 	</section>
 	<section id="newmessage" class="frame">
-		<p class="chrome">new message <input type="button" id="sendnewmessage" value="send" /></p>
+		<p class="chrome">new message</p>
+		<input type="button" id="newmessage-send" value="send" disabled="disabled" />
 		<dl class="content properties">
 			<dt>type</dt>
-			<dd id="newtype">
-				<select>
+			<dd>
+				<select id="newmessage-type" disabled="disabled">
 					<option value="qry">qry</option>
 					<option value="get">get</option>
 					<option value="put">put</option>
 				</select>
 			</dd>
 			<dt>recipient</dt>
-			<dd id="newrecipient"><input type="text" class="hadesaddressfield" /></dd>
+			<dd><input type="text" id="newmessage-recipient" class="hades-name-val!" disabled="disabled" /></dd>
 			<dt>space</dt>
-			<dd id="newspace"><input type="text" value="net.life" /></dd>
+			<dd><input type="text" id="newmessage-space" value="net.life" disabled="disabled" /></dd>
 			<dt>parameter</dt>
-			<dd id="newparameter"><textarea>[{}]</textarea></dd>
+			<dd><textarea id="newmessage-parameter" disabled="disabled">[{}]</textarea></dd>
 		</dl>
 	</section>
-	<section id="lastresponse" class="frame">
+	<section id="lastmessage" class="frame">
 		<p class="chrome">last response</p>
 		<dl class="content properties">
 			<dt>type</dt>
-			<dd id="msgtype">&nbsp;</dd>
+			<dd class="lastmessage-type!">&nbsp;</dd>
 			<dt>author</dt>
-			<dd id="msgauthor">&nbsp;</dd>
+			<dd class="lastmessage-author!">&nbsp;</dd>
 			<dt>space</dt>
-			<dd id="msgspace">&nbsp;</dd>
+			<dd class="lastmessage-space!">&nbsp;</dd>
 			<dt>parameter</dt>
-			<dd id="msgparameter">&nbsp;</dd>
+			<dd class="lastmessage-parameter!">&nbsp;</dd>
 		</dl>
 	</section>
-	<section id="world" class="frame">
+	<section id="world" class="frame hades-connected=true">
 		<p class="chrome">
 			HADES at
 			<span class="hades!">&nbsp;</span>
 			at time
-			<span class="hades-runcount!">&nbsp;</span>
-			:
-			<span class="hades-period!">&nbsp;</span>
+			<span class="hades-runcount!">&nbsp;</span>:<span class="hades-period!">&nbsp;</span>
 		</p>
 		<div id="worldview" class="content">
 			<dl id="bodies" class="properties hades-edition=text hades-edition=sisyphos_graph"></dl>
-			<div id="container" class="hades-edition=sisyphos_graph"></div>
+			<div id="objects">
+				<div id="container" class="hades-edition=sisyphos_graph"></div>
+				<div id="current-node" class="hades-edition=sisyphos_graph used=false">
+					<dl class="properties">
+						<dt>coordinates</dt>
+						<dd><span class="current-node-x!"></span>,<span class="current-node-y!"></span></dd>
+						<dt>objects</dt>
+						<dd><ul class="current-node-objects!"></ul></dd>
+						<dt>bodies</dt>
+						<dd><ul class="current-node-bodies!"></ul></dd>
+					<dl>
+				</div>
+			</div>
 			<p id="lol">&nbsp;</p>
 		</div>
 	</section>

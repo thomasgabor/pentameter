@@ -6,12 +6,6 @@
 	font-family: sans-serif;
 }
 
-#container
-{
-	width: 500px;
-	height: 500px;
-}
-
 .frame, .panel
 {
 	display: block;
@@ -20,7 +14,7 @@
 	width: auto;
 	min-width: 800px;
 	max-width: 1200px;
-	height: 2em;
+	height: 2.4em;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 10px;
@@ -129,8 +123,6 @@ dl.properties dd:nth-of-type(1)
 	border-top: none;
 }
 
-/*body.hades-edition\=sisyphos_graph p { color: #FF0000; }*/
-
 #settings h2
 {
 	display: inline;
@@ -160,13 +152,48 @@ h1
 	overflow: scroll;
 }
 
+#objects
+{
+	float: right;
+	min-width: 200px;
+	max-width: 600px;
+}
+
 #container
 {
+	width: 500px;
+	height: 500px;
+	margin-bottom: 0;
 	margin-right: 10px;
-	float: right;
 	background-color: #ffffff;
 }
 
+#current-node
+{
+	width: 500px;
+	margin-right: 10px;
+	background-color: #f8f8f8;
+	border-top: 1px #888888 solid;
+	border-bottom: 1px #888888 solid;
+}
+
+#current-node.used\=true
+{
+	border-color: #ff8800;
+}
+
+#current-node.used\=false .current-node-x\!::before,
+#current-node.used\=false .current-node-y\!::after
+{
+	content: '\2014';
+}
+
+#current-node.used\=false
+{
+	visibility: hidden;	
+}
+
+/*
 body .hades-state\=constructing,
 body .hades-state\=running,
 body .hades-state\=concluding,
@@ -207,227 +234,213 @@ body.hades-ticked\=false .hades-ticked\=false
 	display: block;
 }
 
+.hades-state\!:empty + #hades-state-update
+{
+	display: none;
+}
 
-/*
-#settings
+.hades-runcount\!:empty + #hades-runcount-update
+{
+	display: none;
+}*/
+
+
+.hades-mode\!:empty::before,
+.hades-state\!:empty::before,
+.hades-edition\!:empty::before,
+.hades-runcount\!:empty::before
+{
+	content: '\2014';
+}
+
+.hades-untocked-timestamp\!:empty::before,
+.hades-untocked-timestamp\!:empty::after
+{
+	content: '';
+}
+
+.hades-untocked-timestamp\!::before
+{
+	content: '<';
+}
+
+.hades-untocked-timestamp\!::after
+{
+	content: '>';
+}
+
+.hades-untocked\!:empty::before
+{
+	content: '\2014';
+}
+
+.dike-hexametername\!
+{
+	padding-left: 5px;
+	font-size: 0.8em;
+}
+
+.lastmessage-parameter\!
+{
+	max-height: 12em;
+	overflow: auto;
+}
+
+#test
 {
 	display: block;
-	width: 80%;
-	height: 1.8em;
+	overflow: visible;
+	
+	width: auto;
+	min-width: 800px;
+	max-width: 1200px;
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 0;
-	margin-bottom: 20px;
-	padding-bottom: 10px;
-	padding-top: 0.6em;
-
-	background-color: #CCCCCC;
-	border: 1px solid #888888;
-	border-bottom-right-radius: 10px;
-	border-bottom-left-radius: 10px;
-	
-}
-
-#settings > *
-{
-	margin-left: 20px;
-	margin-right: 20px;
-}
-
-#settings dl#connections
-{
-	display: inline;
-	height: 1.8em;
-}
-
-#settings dl#connections dt
-{
-	display: inline;
-	padding-right: 1em;
-	
-	font-family: monospace;
-	font-weight: 900;
-	font-size: 1.2em;
-}
-
-#settings dl#connections dt:after
-{
-	content: ':';
-}
-
-#settings dl#connections dd
-{
-	display: inline;
-}
-
-#settings input
-{
-	padding: 2px;
-	font-size: 1.2em;
-	font-family: monospace;
-}
-
-#settings p#hadesmissing
-{
-	display: inline;
-}
-
-h1
-{
-	width: 80%;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-#lastresponse, #newmessage
-{
-	display: block;
-	overflow: hidden;
-	width: 80%;
-	height: 1.8em;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	
-	background-color: #CCCCCC;
-	border-radius: 10px;
-	border: 1px solid #888888;
-	
-	transition: background-color 0.5s, border-color 0.5s;
-}
-
-#lastresponse:hover, #newmessage:hover
-{
-	background-color: #AAAAAA;
-	border-color: #000000;
-}
-
-#lastresponse.active, #newmessage.active
-{
-	height: auto;
-}
-
-#lastresponse > *, #newmessage > *
-{
-	margin-left: 20px;
-	margin-right: 20px;
-}
-
-#lastresponse > :first-child, #newmessage > :first-child
-{
-	margin-top: 0.4em;
-	margin-bottom: 1em;
-}
-
-#lastresponse dl, #newmessage dl
-{
-	background-color: #EEEEEE;
-	border-radius: 10px;
-	margin-bottom: 1em;
-	padding-top: 20px;
-	padding-bottom: 20px;
-}
-
-#lastresponse dl dt, #newmessage dl dt
-{
-	margin-left: 10px;
-	width: 150px;
-	height: 20px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	
-	font-weight: 900;
-	border-top: 1px #888888 dashed;
-}
-
-#lastresponse dl dt:nth-of-type(1), #newmessage dl dt:nth-of-type(1)
-{
-	border-top: none;
-}
-
-#lastresponse dl dd, #newmessage dl dd
-{
-	margin-top: -31px;
-	margin-left: 160px; 
-	margin-right: 10px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	
-	border-top: 1px #888888 dashed;
-}
-
-#lastresponse dl dd:nth-of-type(1), #newmessage dl dd:nth-of-type(1)
-{
-	border-top: none;
-}
-
-#window
-{
-	display: block;
-	width: 80%;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	
-	background-color: #FF8844;
-	border: 1px solid #FF4400;
-	border-radius: 10px;
-}
-
-#window > *
-{
-	margin-left: 20px;
-	margin-right: 20px;
-}
-
-#window > :first-child
-{
-	margin-top: 0.4em;
-	margin-bottom: 1em;
-}
-
-#window ul#bodies
-{
-	background-color: #FFEEDD;
-	border-radius: 10px;
-	margin-bottom: 1em;
-	padding-top: 20px;
-	padding-bottom: 20px;
-	border: 1px solid #FF4400;
-}
-
-#window ul#bodies > *
-{
-	margin-left: 20px;
-	margin-right: 20px;
-}
-
-#window ul#bodies li
-{
 	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	
+	color: #888888;
+	font-family: monospace;
 }
 
-#window ul#bodies li > p:first-child
-{
-	font-size: 1.4em;
-}
 
-#window ul#bodies dt
+input,
+textarea
 {
 	display: inline-block;
-	width: 150px;
+	padding: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+	height: 1.8em;
+
+	border: 1px solid #000000;
+	border-radius: 4px;
+	font-size: 0.8em;
 }
 
-#window ul#bodies dd
+input[type="button"]
 {
-	display: inline;
+	background: linear-gradient(to bottom, #CCCCCC, #888888);
 }
-#window ul#bodies dd:after
+
+input[type="button"]:disabled,
+input[type="button"]:disabled:hover
 {
-	content:"\A";
-	white-space:pre;
-}*/
+	background: linear-gradient(to bottom, #CCCCCC, #AAAAAA);
+	color: #888888;
+	border-color: #888888;
+}
+
+input[type="button"]:hover
+{
+	background: linear-gradient(to bottom, #888888, #CCCCCC);
+}
+
+input[type="button"]:focus
+{
+	border-color: #FF8000;
+	color: #FF8000;
+	outline: none;
+}
+
+input[type="text"],
+textarea
+{
+	background-color: #F4F4F4;
+	width: 12em;
+}
+
+input[type="text"]:disabled,
+input[type="text"]:disabled:hover,
+textarea:disabled,
+textarea:disabled:hover
+{
+	background-color: #F4F4F4;
+	color: #888888;
+	border-color: #888888;
+}
+
+input[type="text"]:hover,
+textarea:hover
+{
+	background-color: #FFFFFF;
+}
+
+input[type="text"]:focus,
+textarea:focus
+{
+	border-color: #FF8000;
+	background-color: #FFFFFF;
+}
+
+input[type="number"]
+{
+	width: 6em;
+	font-size: 0.8em;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+label
+{
+	font-size: 0.8em;
+}
+
+
+#hades-synchronize
+{
+	display: none;
+}
+
+#hades-synchronize + label[for="hades-synchronize"]
+{
+	display: inline-block;
+	padding-top: 3px;
+	padding-bottom: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+	position: relative;
+	top: 0.3px; /* wtf, firefox */
+
+	background: linear-gradient(to bottom, #CCCCCC, #888888);
+	border: 1px solid #000000;
+	border-radius: 4px;
+	font-size: 0.8em;
+}
+
+#hades-synchronize + label[for="hades-synchronize"]:hover
+{
+	background: linear-gradient(to bottom, #888888, #CCCCCC);
+}
+
+#hades-synchronize + label[for="hades-synchronize"]::before
+{
+	content: '';
+	display: inline-block;
+	height: 14px;
+	width: 14px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	margin-right: 4px;
+	vertical-align: middle;
+
+	background-color: #CCCCCC;
+	border: 1px solid #888888;
+	border-radius: 4px;
+}
+
+#hades-synchronize:checked + label[for="hades-synchronize"]::before
+{
+	background-color: #FF8000;
+}
+
+#hades-synchronize:focus + label[for="hades-synchronize"]::before
+{
+	border-color: #FF8000;
+}
+

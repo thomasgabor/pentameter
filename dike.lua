@@ -100,15 +100,27 @@ while true do
 				parameter = answers
 			}
 			multisend(socket, src, del, json.encode(response))
+		elseif (message.space == "pentameter.me" or message.space == "pentameter.name") and (message.type == "qry" or message.type == "get") then
+			local answers = {}
+			for i,item in pairs(message.parameter or {}) do
+				table.insert(answers, {name=hexameter.me()})
+			end
+			local response = {
+				type = "ack",
+				author = message.recipient,
+				space = message.space,
+				parameter = answers
+			}
+			multisend(socket, src, del, json.encode(response))
 		else
 			print("**  Referring to "..message.recipient.." for "..message.type.."@"..message.space)
-			local response = hexameter.ask(message.type, message.recipient, message.space, message.parameter)
+			local answers = hexameter.ask(message.type, message.recipient, message.space, message.parameter)
 			print("**  Returning with result")
 			local response = {
 				type = "ack",
 				author = message.recipient,
 				space = message.space,
-				parameter = response
+				parameter = answers
 			}
 			multisend(socket, src, del, json.encode(response))
 		end

@@ -9,11 +9,20 @@ var hadesEdition = "text";
 var hadesRuncount = 0;
 var hadesPeriod = 0;
 
+var world = {};
+var state = {};
+
 var editions = {};
+
+
 editions.text = {};
 editions.text.init = function() {return null;};
-editions.text.updateWorld = function(newworld) {return null;};
+editions.text.updateWorld = function(newworld) {
+	world = newworld;
+	return null;
+};
 editions.text.updateState = function(newstate) {
+	state = newstate;
 	var htmlstring = "";
 	$.each(newstate, function(name, body) {
 		htmlstring += ("<dt>" + name + "</dt><dd><dl>");
@@ -24,24 +33,100 @@ editions.text.updateState = function(newstate) {
 	});
 	$("#bodies").html(htmlstring);
 }
+
+
 editions.sisyphos_graph = {};
-editions.sisyphos_graph.init = function() {return null;};
+editions.sisyphos_graph.configuration = {};
+editions.sisyphos_graph.configuration.nodeColor = "#888888";
+editions.sisyphos_graph.configuration.visitedColor = "#222222";
+editions.sisyphos_graph.configuration.activeColor = "#ff8800";
+editions.sisyphos_graph.configuration.edgeColor = "#888888";
+editions.sisyphos_graph.auxiliaries = {};
+editions.sisyphos_graph.auxiliaries.select = function(s, e) {
+	e.data.node.originalColor = e.data.node.color;
+	e.data.node.color = editions.sisyphos_graph.configuration.activeColor;
+	$("#current-node").removeClass("used=false");
+	$("#current-node").addClass("used=true");
+	$(".current-node-id\\!").text(e.data.node.id);
+	$(".current-node-label\\!").text(e.data.node.label);
+	$(".current-node-x\\!").text(e.data.node.x);
+	$(".current-node-y\\!").text(e.data.node.y);
+	var htmlstring = "";
+	if ( world.nodes[e.data.node.x] && world.nodes[e.data.node.x][e.data.node.y] ) {
+		var node = world.nodes[e.data.node.x][e.data.node.y];
+		$.each(node.objects, function(o, obj) {
+			htmlstring += "<li>"+ obj.id + "</li>";
+		});
+	};
+	$(".current-node-objects\\!").html(htmlstring);
+	htmlstring = "";
+	$.each(state, function(name, body) {
+		if ( body.position && body.position.x == e.data.node.x && body.position.y == e.data.node.y ) {
+			htmlstring += "<li>" + name + "</li>";
+		};
+	});
+	$(".current-node-bodies\\!").html(htmlstring);
+};
+editions.sisyphos_graph.auxiliaries.unselect = function(s) {
+	s.graph.nodes().forEach(function(n) {
+	  n.color = n.originalColor;
+	});
+	$("#current-node").removeClass("used=true");
+	$("#current-node").addClass("used=false");
+	$(".current-node-id\\!").text("");
+	$(".current-node-label\\!").text("");
+	$(".current-node-x\\!").text("");
+	$(".current-node-y\\!").text("");
+	$(".current-node-objects\\!").html("");
+	$(".current-node-bodies\\!").html("");
+	s.refresh();
+};
+var s; //TODO: make this more object-oriented!!
+editions.sisyphos_graph.init = function() {
+};
 editions.sisyphos_graph.updateWorld = function(newworld) {
+	world = newworld;
 	$("#world").addClass("open");
-	$("#test").text(JSON.stringify(newworld));
-	var s = new sigma("container");
+	//$("#test").text(JSON.stringify(newworld));
+	s = new sigma({
+		renderer: {
+			container: document.getElementById('container'),
+			type: 'canvas'
+		},
+		settings: {
+			minNodeSize: 6,
+			labelSizeRatio: 6,
+			labelThreshold: 2,
+			defaultLabelSize: 16,
+			edgeColor: "default",
+			defaultEdgeColor: editions.sisyphos_graph.configuration.edgeColor
+		}
+	});
+	var current = null;
+	s.bind("clickNode", function(e) {
+		editions.sisyphos_graph.auxiliaries.unselect(s);
+		if ( current == e.data.node ) {
+			current = null;
+		} else {
+			current = e.data.node;
+			editions.sisyphos_graph.auxiliaries.select(s, e);
+		};
+		s.refresh();
+	});
 	$.each(newworld.nodes, function(x, rest) {
 		$.each(rest, function(y, node) {
-			s.graph.addNode({
+			var graphNode = {
 				id: "(" + node.x + "," + node.y + ")",
 				label: "(" + node.x + "," + node.y + ")",
 				x: node.x,
 				y: node.y,
 				size: 1,
-				color: "#ff0000"
-			});
+				color: editions.sisyphos_graph.configuration.nodeColor,
+			    originalColor: editions.sisyphos_graph.configuration.nodeColor
+			};
+			s.graph.addNode(graphNode);
 		});
-	});
+	});	
 	var i = 0;
     $.each(newworld.edges, function(fromx, rest) {
 		$.each(rest, function(fromy, rest) {
@@ -51,7 +136,8 @@ editions.sisyphos_graph.updateWorld = function(newworld) {
 					s.graph.addEdge({
 						id: "e" + i,
 						source: "(" + edge.from.x + "," + edge.from.y + ")",
-						target: "(" + edge.to.x + "," + edge.to.y + ")"
+						target: "(" + edge.to.x + "," + edge.to.y + ")",
+						size: 4
 					});
 				});
 			});
@@ -59,7 +145,23 @@ editions.sisyphos_graph.updateWorld = function(newworld) {
     });
     s.refresh();
 };
-editions.sisyphos_graph.updateState = editions.text.updateState;
+editions.sisyphos_graph.updateState = function(newstate) {
+	editions.text.updateState(newstate);
+	s.graph.nodes().forEach(function(n) {
+          n.color = editions.sisyphos_graph.configuration.nodeColor;
+		  n.originalColor = editions.sisyphos_graph.configuration.nodeColor;
+    });
+	$.each(state, function(name, body) {
+		if ( body.position && body.position.x != null && body.position.y != null ) {
+			var graphNode = s.graph.nodes("("+body.position.x+","+body.position.y+")");
+			if ( graphNode ) {
+				graphNode.color = editions.sisyphos_graph.configuration.visitedColor;
+				graphNode.originalColor = editions.sisyphos_graph.configuration.visitedColor;
+			};
+		};
+	});
+	s.refresh();
+};
 
 function checkInbox() {
 	//pentameter.talk("get", $("#hades").val(), "net.life", [{a:42}]);
@@ -67,6 +169,29 @@ function checkInbox() {
 	if ( hadesState != "dead" ) {
 		setTimeout(checkInbox, 1000);
 	};
+}
+
+function buildDynamicCSS(property, values) {
+	rules = "";
+	var first = true;
+	$.each(values, function(v, value) {
+		if ( !first ) {
+			rules += ",\n";
+		};
+		rules += "body:not(." + property + "\\=" + value + ") ." + property + "\\=" + value;
+		first = false;
+	});
+	rules += "\n{\n  display: none;\n}\n\n";
+	/*first = true;
+	$.each(values, function(v, value) {
+		if ( !first ) {
+			rules += ",\n";
+		};
+		rules += "body." + property + "\\=" + value + " ." +  property + "\\=" + value;
+		first = false;
+	});
+	rules += "{ display: block; }\n\n";*/
+	return rules;
 }
 
 function hadesUpdate() {
@@ -111,6 +236,15 @@ function hadesUpdate() {
 }
 
 function orpheus(type, author, space, parameter) {
+	$(".lastmessage-type\\!").text(type);
+	$(".lastmessage-author\\!").text(author);
+	$(".lastmessage-space\\!").text(space);
+	$(".lastmessage-parameter\\!").text(JSON.stringify(parameter));
+	if ( space == "pentameter.name" || space == "pentameter.me" ) {
+		$.each(parameter, function(i, item) {
+			$(".dike-hexametername\\!").text(item.name);
+		});
+	};
 	if ( space == "server.mode" ) {
 		$.each(parameter, function(i, item) {
 			if ( item.mode ) {
@@ -123,6 +257,9 @@ function orpheus(type, author, space, parameter) {
 		$.each(parameter, function(i, item) {
 			var state = item.state ? item.state.type : item.type;
 			if ( state ) {
+				if ( hadesState != "running" && state == "running" && hadesSynchronized ) {
+					pentameter.talk("put", $("#hades").val(), "server.tocks", [{}]);
+				};
 				hadesState = state;
 				hadesAdvancedState = item.state ? item.state : item;
 				hadesUpdate();
@@ -141,6 +278,12 @@ function orpheus(type, author, space, parameter) {
 			hadesTicked = true;
 			hadesUpdate();
 		};
+	};
+	if ( space == "server.untocked" ) {
+		$.each(parameter, function(i, item) {
+			$(".hades-untocked\\!").text(JSON.stringify(item));
+			$(".hades-untocked-timestamp\\!").text(hadesRuncount + ":" + hadesPeriod);
+		});
 	};
 	if ( space == "state" ) {
 		$.each(parameter, function(i, item) {
@@ -185,7 +328,14 @@ function orpheus(type, author, space, parameter) {
 };
 
 $(document).ready(function() {
-
+	var dynamicCSS = "";
+	dynamicCSS += buildDynamicCSS("hades-state",         ["constructing", "running", "concluding", "dead"]);
+	dynamicCSS += buildDynamicCSS("hades-mode",          ["ephemeral", "server"]);
+	dynamicCSS += buildDynamicCSS("hades-edition",       Object.keys(editions));
+	dynamicCSS += buildDynamicCSS("hades-connected",     ["true", "false"]);
+	dynamicCSS += buildDynamicCSS("hades-synchronized",  ["true", "false"]);
+	dynamicCSS += buildDynamicCSS("hades-ticked",        ["true", "false"]);
+	$("<style type=\"text/css\">" + dynamicCSS + "</style>").appendTo("head");
 	$(".frame, .topbar").click(function(e) {
 		if ( !$(e.target).hasClass("frame") && !$(e.target).hasClass("chrome") && $(e.target).parents(".chrome").length == 0 ) {
             //e.preventDefault();
@@ -209,14 +359,19 @@ $(document).ready(function() {
 		$("#hades").attr("disabled", "disabled");
 		$("#eury").attr("disabled", "disabled");
 		$("#dike").attr("disabled", "disabled");
+		$("#newmessage-send, #newmessage-type, #newmessage-recipient, #newmessage-space, #newmessage-parameter").attr("disabled", "");
+		$(".hades-name\\!").text($("#hades").val());
+		$(".eury-name\\!").text($("#eury").val());
+		$(".dike-name\\!").text($("#dike").val());
+		$(".hades-name-val\\!").val($("#hades").val());
+		$(".eury-name-val\\!").val($("#eury").val());
+		$(".dike-name-val\\!").val($("#dike").val());
+		
 		var ctx = new nullmq.Context("ws://" + $("#eury").val()); //username "guest", password "guest" are ASSUMED by nullmq (!)
 		var req = ctx.socket(nullmq.REQ);
 		req.connect("tcp://"+ $("#dike").val());
 		pentameter.init(req, orpheus);
-		$(".hadesaddress").text($("#hades").val());
-		if ($(".hadesaddressfield").val() == "") {
-			$(".hadesaddressfield").val($("#hades").val());
-		};
+		pentameter.talk("get", "dummy", "pentameter.name", [{}]);
 		pentameter.talk("get", $("#hades").val(), "server.mode", [{}]);
 		pentameter.talk("get", $("#hades").val(), "server.state", [{}]);
 		pentameter.talk("get", $("#hades").val(), "server.runcount", [{}]);
@@ -226,7 +381,6 @@ $(document).ready(function() {
 		
 		if ( hadesSynchronized ) {
 			pentameter.talk("put", $("#hades").val(), "server.ticks", [{}]);
-			pentameter.talk("put", $("#hades").val(), "server.tocks", [{}]);
 		};
 		hadesConnected = true;
 		
@@ -241,6 +395,10 @@ $(document).ready(function() {
 			hadesSynchronized = true;
 			if ( hadesConnected ) {
 				pentameter.talk("put", $("#hades").val(), "server.ticks", [{}]);
+				if ( hadesState == "running" ) {
+					hadesTicked = true;
+					hadesUpdate();
+				};
 			};
 			hadesUpdate();
 		} else {
@@ -284,5 +442,17 @@ $(document).ready(function() {
 	});
 	$("#orpheus-reload").click(function() {
 		window.location.reload(true);
+	});
+	$("#newmessage-send").click(function() {
+		$("#lastmessage").toggleClass("open");
+		pentameter.talk(
+			$("#newmessage-type").val(),
+			$("#newmessage-recipient").val(),
+			$("#newmessage-space").val(),
+			JSON.parse($("#newmessage-parameter").val())
+		);
+	});
+	$("#hades-untocked-fetch").click(function() {
+		pentameter.talk("qry", $("#hades").val(), "server.untocked", [{}]);
 	});
 }); 
